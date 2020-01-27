@@ -101,7 +101,7 @@ class OperatorConverter(object):
             'L2_NORMALIZATION': self.convert_l2_normalization,
             'TRANSPOSE_CONV': self.convert_transpose_conv,
             'DETECTION_POSTPROCESS': self._convert_detection_postprocess
-       }
+        }
 
     def check_unsupported_ops(self):
         """Check unsupported TFLite ops in our converter."""
@@ -1535,7 +1535,7 @@ class OperatorConverter(object):
 
         return out
 
-    def _convert_detection_postprocess(self, op):
+    def convert_detection_postprocess(self, op):
         """Convert TFLite_Detection_PostProcess"""
         _option_names = [
             "w_scale",
@@ -1609,10 +1609,10 @@ class OperatorConverter(object):
         anchor_expr = _op.expand_dims(anchor_expr, 0)
 
         # attributes for multibox_transform_loc
-        new_attrs0 = {}
-        new_attrs0["clip"] = False
-        new_attrs0["threshold"] = custom_options["nms_score_threshold"]
-        new_attrs0["variances"] = (
+        multibox_transform_loc_attrs = {}
+        multibox_transform_loc_attrs["clip"] = False
+        multibox_transform_loc_attrs["threshold"] = custom_options["nms_score_threshold"]
+        multibox_transform_loc_attrs["variances"] = (
             1 / custom_options["x_scale"],
             1 / custom_options["y_scale"],
             1 / custom_options["w_scale"],
@@ -1620,17 +1620,17 @@ class OperatorConverter(object):
         )
 
         # attributes for non_max_suppression
-        new_attrs1 = {}
-        new_attrs1["return_indices"] = False
-        new_attrs1["iou_threshold"] = custom_options["nms_iou_threshold"]
-        new_attrs1["force_suppress"] = False
-        new_attrs1["top_k"] = anchor_boxes
-        new_attrs1["max_output_size"] = custom_options["max_detections"]
-        new_attrs1["invalid_to_bottom"] = False
+        non_max_suppression_attrs = {}
+        non_max_suppression_attrs["return_indices"] = False
+        non_max_suppression_attrs["iou_threshold"] = custom_options["nms_iou_threshold"]
+        non_max_suppression_attrs["force_suppress"] = False
+        non_max_suppression_attrs["top_k"] = anchor_boxes
+        non_max_suppression_attrs["max_output_size"] = custom_options["max_detections"]
+        non_max_suppression_attrs["invalid_to_bottom"] = False
 
         ret = _op.vision.multibox_transform_loc(cls_pred, loc_prob,
-                                                anchor_expr, **new_attrs0)
-        ret = _op.vision.non_max_suppression(ret[0], ret[1], **new_attrs1)
+                                                anchor_expr, **multibox_transform_loc_attrs)
+        ret = _op.vision.non_max_suppression(ret[0], ret[1], **non_max_suppression_attrs)
         ret = _op.vision.get_valid_counts(ret, 0)
         valid_count = ret[0]
         # the output needs some reshaping to match tflite
