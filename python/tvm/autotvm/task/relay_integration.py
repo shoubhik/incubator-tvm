@@ -49,9 +49,10 @@ def _lower(func,
                 grc = graph_runtime_codegen.GraphRuntimeCodegen(None, target)
                 return grc.codegen(mod["main"])
     # default case
-    mod, _ = relay.optimize(func, target, params)
-    grc = graph_runtime_codegen.GraphRuntimeCodegen(None, target)
-    return grc.codegen(mod["main"])
+    compiler = relay.vm.VMCompiler()
+    if params:
+        compiler.set_params(params)
+    compiler.lower(mod, target=target)
 
 
 def extract_from_program(func, params, ops, target, target_host=None,
@@ -123,7 +124,9 @@ def extract_from_multiple_program(funcs, params, ops, target, target_host=None,
     # relay op -> topi compute
     OP2TOPI = {
         tvm.relay.op.nn.conv2d: [topi.nn.conv2d, topi.nn.depthwise_conv2d_nchw,
-                                 topi.nn.group_conv2d_nchw, topi.nn.conv2d_NCHWc],
+                                 topi.nn.group_conv2d_nchw,
+                                 topi.nn.conv2d_NCHWc,
+                                 topi.nn.conv2d_NCHWc_int8],
         tvm.relay.op.nn.conv2d_transpose: [topi.nn.conv2d_transpose_nchw],
         tvm.relay.op.nn.dense: [topi.nn.dense],
         tvm.relay.op.nn.batch_matmul: [topi.nn.batch_matmul],
