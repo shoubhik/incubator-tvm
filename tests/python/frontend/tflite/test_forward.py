@@ -147,7 +147,12 @@ def compare_tflite_with_tvm(in_data, in_name, input_tensors,
             # if all inputs are in (float_min; float_max) == (-100, 100)
             # s = 255/(fmax-fmin);  m = -fmin*s (the zero point)
             for i in input_arrays:
-                input_stats[i] = (128., 1.275)
+                try:
+                    quant_scale = 255 / (input_range[i][1] - input_range[i][0])
+                except ZeroDivisionError:
+                    raise ZeroDivisionError('Min and max of the input range for tensor ' + i + ' can\'t be equal')
+                mean = - input_range[i][0] * quant_scale
+                input_stats[i] = (mean, quant_scale)
             converter.quantized_input_stats = input_stats
 
         tflite_model_buffer = converter.convert()
@@ -612,6 +617,25 @@ def _test_elemwise(math_op, data, fused_activation_function=None, quantized=Fals
             out = math_op(in_data[0], ops.convert_to_tensor(data[1], dtype=data[1].dtype))
             out = with_fused_activation_function(out, fused_activation_function)
             compare_tflite_with_tvm(data[0], ['in_0:0'], in_data, [out])
+
+    # Test with constant and tensor
+    #with tf.Graph().as_default():
+    #    in_data = [array_ops.placeholder(shape=data[1].shape, dtype='float32', name='in_1')]
+
+    #    if quantized:
+    #        inq_const = tf.quantization.fake_quant_with_min_max_args(data[0], min=-100, max=100, name="const_tensor")
+    #        inq_data = [tf.quantization.fake_quant_with_min_max_args(in_data[0], min=-50, max=50, name="inq_1")]
+    #        input_range = {'inq_1': (-50, 50)}
+    #        # the 1st tensor is treated as constant and directly added as part of the operation
+    #        out = math_op(ops.convert_to_tensor(inq_const, dtype='float32', name='inq_const'), inq_data)
+    #        out = with_fused_activation_function(out, fused_activation_function)
+    #        out_min, out_max = _test_elemwise_qnn_out_range(qnn_op)
+    #        out = tf.quantization.fake_quant_with_min_max_args(out, min=out_min, max=out_max, name="out")
+    #        compare_tflite_with_tvm(data[1], ['inq_1:0'], inq_data, [out], quantized=True, input_range=input_range)
+    #    else:
+    #        out = math_op(ops.convert_to_tensor(data[0], dtype=data[0].dtype), in_data[0])
+    #        out = with_fused_activation_function(out, fused_activation_function)
+    #        compare_tflite_with_tvm(data[1], ['in_1:0'], in_data, [out])
 
 #######################################################################
 # Add
