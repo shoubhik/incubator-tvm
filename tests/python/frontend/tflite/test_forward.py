@@ -641,6 +641,7 @@ def _test_elemwise(math_op, data, fused_activation_function=None, quantized=Fals
     #        out = with_fused_activation_function(out, fused_activation_function)
     #        compare_tflite_with_tvm(data[1], ['in_1:0'], in_data, [out])
 
+
 #######################################################################
 # Add
 # ---
