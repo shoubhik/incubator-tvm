@@ -479,6 +479,7 @@ def test_forward_convolution():
     _test_convolution([1, 76, 64, 1], [9, 5, 1, 96], [1, 1], [1, 1], 'SAME', 'NHWC', True)
 
 
+
 #######################################################################
 # Reshape
 # -------
@@ -624,9 +625,9 @@ def _test_add(data, fused_activation_function=None, quantized=False, qnn_op=None
 # Subtract
 # --------
 
-def _test_sub(data, fused_activation_function=None, quantized=False):
+def _test_sub(data, fused_activation_function=None, quantized=False, qnn_op=None):
     """ One iteration of subtract """
-    return _test_elemwise(math_ops.subtract, data, fused_activation_function, quantized)
+    return _test_elemwise(math_ops.subtract, data, fused_activation_function, quantized, qnn_op)
 #######################################################################
 # Mul
 # ---
