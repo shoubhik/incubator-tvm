@@ -1387,7 +1387,7 @@ def test_forward_qnn_mobilenet_v2_net():
 
 #######################################################################
 # Quantized SSD Mobilenet
-# -------------
+# -----------------------
 
 def test_forward_qnn_coco_ssd_mobilenet_v1():
     """Test the quantized Coco SSD Mobilenet V1 TF Lite model."""
