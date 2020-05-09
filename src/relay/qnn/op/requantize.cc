@@ -115,7 +115,7 @@ Expr RequantizeLower(const Expr& input_tensor, const Expr& input_scale,
 
   // 4) Clip to the out_dtype min/max. Skip clipping if out_dtype is Int32. The fixed point
   // multiplication keeps the value in int32 range if the requantize scale is less than 1.
-  if (out_dtype == DataType::Int(32) && !is_multiplier_gt_one) {
+  if (out_dtype == Int(32) && !is_multiplier_gt_one) {
     return Cast(shifted_int64_t, out_dtype);
   }
   auto q_min = GetQmin(out_dtype);
