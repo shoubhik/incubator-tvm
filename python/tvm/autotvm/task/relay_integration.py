@@ -49,10 +49,9 @@ def _lower(func,
                 grc = graph_runtime_codegen.GraphRuntimeCodegen(None, target)
                 return grc.codegen(mod["main"])
     # default case
-    compiler = relay.vm.VMCompiler()
-    if params:
-        compiler.set_params(params)
-    compiler.lower(mod, target=target)
+    mod, _ = relay.optimize(func, target, params)
+    grc = graph_runtime_codegen.GraphRuntimeCodegen(None, target)
+    return grc.codegen(mod["main"])
 
 
 def extract_from_program(func, params, ops, target, target_host=None,
