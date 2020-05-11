@@ -222,7 +222,6 @@ template <class TransformMemorizerT>
 Expr LayoutRewriter(const Call& ref_call, const Array<Expr>& new_args, const NodeRef& ctx) {
   std::vector<LayoutAlternatedExpr<TransformMemorizerT>> inputs;
   std::vector<Expr> normal_new_args;
-  Array<Array<IndexExpr>> input_shapes;
 
   // NOTE: discard the "const" qualifier
   // TransformMemorizer memorizer = Downcast<TransformMemorizer>(ctx);
@@ -269,22 +268,16 @@ Expr LayoutRewriter(const Call& ref_call, const Array<Expr>& new_args, const Nod
     old_in.push_back(inp->old_layout);
     new_in.push_back(inp->new_layout);
   }
+  tvm::Array<tvm::relay::Type> types;
 
   for (auto arg : ref_call->args) {
-    if (arg->IsInstance<TupleNode>()) {  // flatten tuple
-      Tuple tuple_arg = Downcast<Tuple>(arg);
-      for (auto x : tuple_arg->fields) {
-        input_shapes.push_back(x->type_as<TensorTypeNode>()->shape);
-      }
-    } else {
-      input_shapes.push_back(arg->type_as<TensorTypeNode>()->shape);
-    }
+    types.push_back(arg->checked_type());
   }
 
   // old_in, old_out = op.infer(old_in)
   bool success = false;
   std::tie(old_in, old_out, success) =
-      InferCorrectLayouts(ref_call, Array<Layout>(nullptr), old_in, input_shapes);
+      InferCorrectLayouts(ref_call, Array<Layout>(nullptr), old_in, types);
   if (!success) {
     return Expr(nullptr);
   }
@@ -304,7 +297,7 @@ Expr LayoutRewriter(const Call& ref_call, const Array<Expr>& new_args, const Nod
   if (new_call->op->IsInstance<OpNode>()) {
     success = false;
     std::tie(new_in2, new_out, success) =
-        InferCorrectLayouts(new_call, new_in, old_in, input_shapes);
+        InferCorrectLayouts(new_call, new_in, old_in, types);
     if (!success) {
       return Expr(nullptr);
     }

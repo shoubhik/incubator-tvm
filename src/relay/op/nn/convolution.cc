@@ -37,20 +37,6 @@ namespace relay {
 // relay.nn.conv2d
 TVM_REGISTER_NODE_TYPE(Conv2DAttrs);
 
-template<typename T>
-Array<Array<Layout> > Conv2DInferCorrectLayout(
-    const Attrs& attrs,
-    const Array<Layout>& new_in_layouts,
-    const Array<Layout>& old_in_layouts,
-    const Array<Array<IndexExpr>> &old_in_shapes) {
-  const T* params = attrs.as<T>();
-
-  // We always make other operators to fit the layouts of convolution layers
-  // So this inference ignores all inputs
-  return Array<Array<Layout> >{{params->data_layout, params->kernel_layout},
-                               {params->out_layout == "" ?
-                                   params->data_layout : params->out_layout}};
-}
 
 // Positional relay function to create conv2d operator
 // used by frontend FFI.

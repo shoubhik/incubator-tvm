@@ -268,8 +268,6 @@ def convert_conv2d(attrs, inputs, tinfos, desired_layout):
     """
 
     from tvm import relay
-    data_layout = attrs['data_layout']
-    kernel_layout = attrs['kernel_layout']
     data, weight = inputs
     assert desired_layout == 'NCHW', \
             "Currently only transformation to NCHW layout is supported."
@@ -277,13 +275,7 @@ def convert_conv2d(attrs, inputs, tinfos, desired_layout):
         new_attrs = dict(attrs)
         new_attrs['data_layout'] = desired_layout
         new_attrs['kernel_layout'] = 'OIHW'
-
-        if data_layout == 'NHWC' and kernel_layout == 'HWIO':
-            # Convert (NHWC, HWIO) to (NCHW, OIHW)
-            return relay.nn.conv2d(data, weight, **new_attrs)
-        if data_layout == 'NHWC' and kernel_layout == 'HWOI':
-            # Convert (NHWC, HWOI) to (NCHW, OIHW). Depthwise conv2d.
-            return relay.nn.conv2d(data, weight, **new_attrs)
+        return relay.nn.conv2d(data, weight, **new_attrs)
     return None
 
 reg.register_pattern("nn.conv2d", OpPattern.OUT_ELEMWISE_FUSABLE)
