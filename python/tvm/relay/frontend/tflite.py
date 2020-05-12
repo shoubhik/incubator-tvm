@@ -577,8 +577,7 @@ class OperatorConverter(object):
         """Convert TFLite SUB"""
         # Check if the input tensor is quantized, call QNN op
         if self.is_quantized(op):
-            raise tvm.error.OpNotImplemented(
-                'TFlite quantized sub operator is not supported yet.')
+            return self._convert_elemwise(_qnn.op.subtract, op)
         return self._convert_elemwise(_op.subtract, op)
 
     def convert_mul(self, op):

@@ -470,6 +470,8 @@ def test_forward_convolution():
     _test_convolution([4, 17, 17, 124], [1, 1, 124, 1], [1, 1], [1, 1], 'SAME', 'NHWC', True)
     _test_convolution([4, 17, 17, 12], [3, 3, 12, 1], [1, 1], [2, 2], 'VALID', 'NHWC', True)
     _test_convolution([4, 17, 17, 12], [3, 3, 12, 2], [1, 1], [2, 2], 'VALID', 'NHWC', True)
+    # dephtwise convolution with single input channel
+    _test_convolution([1, 76, 64, 1], [9, 5, 1, 96], [1, 1], [1, 1], 'SAME', 'NHWC', True)
 
 
 #######################################################################
@@ -614,9 +616,9 @@ def _test_add(data, fused_activation_function=None, quantized=False):
 # Subtract
 # --------
 
-def _test_sub(data, fused_activation_function=None):
+def _test_sub(data, fused_activation_function=None, quantized=False):
     """ One iteration of subtract """
-    return _test_elemwise(math_ops.subtract, data, fused_activation_function)
+    return _test_elemwise(math_ops.subtract, data, fused_activation_function, quantized)
 #######################################################################
 # Mul
 # ---
@@ -679,6 +681,7 @@ def test_all_elemwise():
     _test_forward_elemwise(partial(_test_add, fused_activation_function="RELU"))
     _test_forward_elemwise(partial(_test_add, fused_activation_function="RELU6"))
     _test_forward_elemwise(_test_sub)
+    _test_forward_elemwise_quantized(_test_sub)
     _test_forward_elemwise(partial(_test_sub, fused_activation_function="RELU"))
     _test_forward_elemwise(partial(_test_sub, fused_activation_function="RELU6"))
     _test_forward_elemwise(_test_mul)
