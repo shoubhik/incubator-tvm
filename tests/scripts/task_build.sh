@@ -16,3 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 cd $1 && cmake .. && make $2 && cd ..
+
+mkdir /workspace/configuration  && export PYTHON_MODULE_INSTALL_DIR=/workspace/configuration
+cd /workspace/python \
+&& python3.6 setup.py bdist_wheel \
+&& cd dist && TVM_DIST=$(ls *.whl | head -1) \
+&& python3.6 -m pip install --no-compile --no-deps --upgrade "$TVM_DIST" --prefix "$PYTHON_MODULE_INSTALL_DIR" \
+&& cd ../..
+
+cd /workspace/topi/python \
+&& python3.6 setup.py bdist_wheel \
+&& cd dist && TOPI_DIST=$(ls *.whl | head -1) \
+&& python3.6 -m pip install --no-compile --no-deps --upgrade "$TOPI_DIST" --prefix "$PYTHON_MODULE_INSTALL_DIR"

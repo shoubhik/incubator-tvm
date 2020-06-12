@@ -19,6 +19,10 @@
 # tag: v0.41
 FROM ubuntu:16.04
 
+RUN apt-get update && apt-get install -y \
+curl
+CMD /bin/bash
+
 RUN apt-get update --fix-missing
 
 COPY install/ubuntu_install_core.sh /install/ubuntu_install_core.sh
@@ -30,8 +34,12 @@ RUN bash /install/ubuntu_install_python.sh
 COPY install/ubuntu_install_python_package.sh /install/ubuntu_install_python_package.sh
 RUN bash /install/ubuntu_install_python_package.sh
 
-COPY install/ubuntu_install_llvm.sh /install/ubuntu_install_llvm.sh
-RUN bash /install/ubuntu_install_llvm.sh
+# Install LLVM v6.0.1
+RUN rm -rf llvm \
+ && mkdir llvm \
+ && curl -sL https://releases.llvm.org/6.0.1/clang+llvm-6.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz -o llvm.tzr.xz \
+ && tar xfv llvm.tzr.xz -C llvm --strip-components=1 \
+ && rm -rf llvm.tzr.xz
 
 # SGX deps (build early; changes infrequently)
 COPY install/ubuntu_install_sgx.sh /install/ubuntu_install_sgx.sh
@@ -68,3 +76,8 @@ RUN bash /install/ubuntu_install_antlr.sh
 # Chisel deps for TSIM
 COPY install/ubuntu_install_chisel.sh /install/ubuntu_install_chisel.sh
 RUN bash /install/ubuntu_install_chisel.sh
+
+# Install TFLite
+COPY install/ubuntu_install_tflite.sh /install/ubuntu_install_tflite.sh
+RUN bash /install/ubuntu_install_tflite.sh
+
