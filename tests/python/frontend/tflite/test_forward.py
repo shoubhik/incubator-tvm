@@ -1171,20 +1171,20 @@ def test_forward_qnn_mobilenet_v2_net():
 # MediaPipe
 # -------------
 
-def test_forward_mediapipe_hand_landmark():
-    """Test MediaPipe 2D hand landmark TF Lite model."""
-    # MediaPipe 2D hand landmark TF
-    tflite_model_file = download_testdata(
-        "https://github.com/google/mediapipe/raw/master/mediapipe/models/hand_landmark.tflite",
-        "hand_landmark.tflite")
-    with open(tflite_model_file, "rb") as f:
-        tflite_model_buf = f.read()
-    data = np.random.uniform(size=(1, 256, 256, 3)).astype('float32')
-    tflite_output = run_tflite_graph(tflite_model_buf, data)
-    tvm_output = run_tvm_graph(tflite_model_buf, data, 'input_1', num_output=2)
-    for i in range(2):
-        tvm.testing.assert_allclose(np.squeeze(tvm_output[i]), np.squeeze(tflite_output[i]),
-                                    rtol=1e-5, atol=1e-5)
+#def test_forward_mediapipe_hand_landmark():
+#    """Test MediaPipe 2D hand landmark TF Lite model."""
+#    # MediaPipe 2D hand landmark TF
+#    tflite_model_file = download_testdata(
+#        "https://github.com/google/mediapipe/raw/master/mediapipe/models/hand_landmark.tflite",
+#        "hand_landmark.tflite")
+#    with open(tflite_model_file, "rb") as f:
+#        tflite_model_buf = f.read()
+#    data = np.random.uniform(size=(1, 256, 256, 3)).astype('float32')
+#    tflite_output = run_tflite_graph(tflite_model_buf, data)
+#    tvm_output = run_tvm_graph(tflite_model_buf, data, 'input_1', num_output=2)
+#    for i in range(2):
+#        tvm.testing.assert_allclose(np.squeeze(tvm_output[i]), np.squeeze(tflite_output[i]),
+#                                    rtol=1e-5, atol=1e-5)
 
 #######################################################################
 # Main
