@@ -288,8 +288,8 @@ class OperatorConverter(object):
 
         # Get min/max of the output dtype. This will be used to ensure that clip a_min/a_max are not
         # beyond the dtype range.
-        qmin = float(tvm.tir.op.min_value(dtype).value)
-        qmax = float(tvm.tir.op.max_value(dtype).value)
+        qmin = float(tvm.min_value(dtype).value)
+        qmax = float(tvm.max_value(dtype).value)
 
         # The input expr is a quantized tensor with its scale and zero point. We calculate the
         # suitable clip off points based on these scale and zero point.
@@ -1264,8 +1264,7 @@ class OperatorConverter(object):
             from tflite.Padding import Padding
         except ImportError:
             raise ImportError("The tflite package must be installed")
-
-        assert isinstance(op, Operator)
+        
         input_tensors = self.get_input_tensors(op)
         assert len(input_tensors) == 1, "input tensors length should be 1"
         input_tensor = input_tensors[0]
