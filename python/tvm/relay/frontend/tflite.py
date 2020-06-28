@@ -100,7 +100,7 @@ class OperatorConverter(object):
             'PRELU': self.convert_prelu,
             'L2_NORMALIZATION': self.convert_l2_normalization,
             'TRANSPOSE_CONV': self.convert_transpose_conv,
-            'DETECTION_POSTPROCESS': self._convert_detection_postprocess
+            'DETECTION_POSTPROCESS': self.convert_detection_postprocess
         }
 
     def check_unsupported_ops(self):
